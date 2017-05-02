@@ -5,8 +5,8 @@ defmodule NotifyTest do
   @test_ios true
   @test_android false
 
-  @ios {:ios, "2e3954ad967348ff66b6765bae71376998b2e8c15de63be2005e6eb0c1f9b5df"}
-  @android {:android, "dNwjDvkSAMM:APA91bG6ViUil3nB3mz_I104HRyljEiy0oUVmzd27ZeEQ5zM2kR0ZRihLG5wUfN9jWIm4xqpg7LcSgKG62h2vz1xxW79KUZ_y81uDMmn3MI9E8VHij72yy-ak6ZkJqeQ1tCBMVUIFifE"}
+  @ios {:ios, "PASTE_YOUR_IOS_DEVICE_TOKEN_HERE"}
+  @android {:android, "PASTE_YOUR_ANDROID_DEVICE_TOKEN_HERE"}
   @voip %Notification{
     title: "NotifyTest VOIP notification",
     message: "This is a message from the Notify package written in Elixir",
