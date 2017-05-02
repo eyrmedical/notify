@@ -1,51 +1,105 @@
 defmodule Notify do
-  import Poison
+  require Logger
+  require Kadabra
   @moduledoc """
-  A module for generating push notifications on the Apple Push Notification Service using HTTP2 requests and the new .p8 key standard. This module will generate JWT tokens from the .p8 key and use them to push notifications to device IDs.
+  A module for generating push notifications and dispatch them to either the
+  Firebase Cloud Messaging (Android) or Apple Push Notification service (iOS).
 
   ## Configuration
     config :notify,
-      bundle_id: "your.app.bundle.id",
-      key_id: "APPLEKEYID",
-      team_id: "APPLETEAMID",
-      key: "/full/path/to/key/APNsAuthKey_APPLEKEYID.p8"
+      bundle_id: "com.example.app",
+      key_id: "APNS_AUTH_KEY_ID",
+      team_id: "APPLE_DEVELOPER_TEAM_ID",
+      key_path: "/path/to/APNsAuthKey_<APNS_AUTH_KEY_ID>.p8",
+      project_id: "firebase-project-id",
+      server_key: "FIREBASE_SERVER_KEY",
+      color: "#FF6677", # (Android notification color)
+      sound: "sound", # (Notification sound)
   """
-  @key Application.get_env(:notify, :key) |> File.read!
-  @key_id Application.get_env(:notify, :key_id)
-  @team_id Application.get_env(:notify, :team_id)
 
-
-  unless Application.get_all_env(:notify) do
-    raise "Notify is not configured"
-  end
-
-  unless @key do
-    raise "Could not read key file"
-  end
-
-  unless String.length(@team_id) == 10 do
-    raise ":team_id must be 10 characters"
+  @doc """
+  Send a notification to list of device_ids
+  """
+  def push(device_ids, notification) when is_list(device_ids) do
+    for id <- device_ids, do: push(id, notification)
   end
 
   @doc """
-  Creates a JWT token
+  Send a notification to a single device_id
   """
-  def create_token() do
-    {_alg, token} = JOSE.JWK.from_pem(@key)
-    |> JOSE.JWT.sign(
-      %{ "alg" => "ES256" },
-      %{ "iss" => @team_id, "iat" => timestamp() }
-    )
+  def push({ platform, device_id }, %Notification{} = notification) do
+    case platform do
+      :ios -> parse(:ios, notification) |> Notify.APNS.push(device_id)
+      :android -> parse(:android, notification, device_id) |> Notify.FCM.push()
+      invalid_platform -> Logger.warn "Invalid platform: #{platform}"
+    end
+  end
+  def push({ platform, device_id}, _), do: {:error, "Invalid %Notification{}"}
 
-    Poison.encode!(token)
-    |> IO.inspect
+  @spec parse(:ios, %Notification{}) :: Map.t()
+  defp parse(:ios, %Notification{
+    priority: priority,
+    title: title,
+    message: message,
+    data: data,
+    sound: sound,
+    expiration: expiration
+  }) do
+
+    # Change "high" or "normal" to corresponding numeric values for APNS. Defaults to "high" / 10.
+    if priority == "normal" do
+      priority = 5
+    else
+      priority = 10
+    end
+
+    notification = %{
+      "alert" => %{
+        "title" => title,
+        "body" => message,
+      },
+      "sound" => sound,
+      "content-available" => "1"
+    }
+
+    unless Map.keys(data) == [] do
+      notification = Map.put(notification, "payload", data)
+    end
+    %{
+      "expiration" => expiration,
+      "priority" =>  priority,
+      "notification"=> notification
+    }
   end
 
-  def push() do
-    "push"
+  @spec parse(:android, %Notification{}, String.t()) :: Map.t()
+  defp parse(:android,
+    %Notification{
+      priority: priority,
+      title: title,
+      message: message,
+      data: data,
+      sound: sound,
+      color: color,
+      icon: icon,
+      tag: tag
+    }, device_id)
+  do
+    %{
+      "to" => device_id,
+      "priority" => priority,
+      "notification" => %{
+        "title" => title,
+        "body" => message,
+        "sound" => sound,
+        "color" => color,
+        "icon" => icon,
+        "tag" => tag,
+      },
+      "data" => data
+    }
   end
 
   @spec timestamp() :: number()
   defp timestamp(), do: DateTime.utc_now() |> DateTime.to_unix()
-
 end
