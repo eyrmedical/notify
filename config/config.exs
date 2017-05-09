@@ -6,4 +6,4 @@ config :logger,
 config :notify,
   production: Mix.env() == :prod || :false
 
-import_config "secret.exs"
+# import_config "secret.exs"
