@@ -18,5 +18,5 @@ erl_crash.dump
 
 # Also ignore archive artifacts (built via "mix archive.build").
 *.ez
-/keys/*
+/keys/*.p8
 /config/secret.exs

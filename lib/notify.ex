@@ -53,22 +53,18 @@ defmodule Notify do
       priority = 10
     end
 
-    notification = %{
-      "alert" => %{
-        "title" => title,
-        "body" => message,
-      },
-      "sound" => sound,
-      "content-available" => "1"
-    }
-
-    unless Map.keys(data) == [] do
-      notification = Map.put(notification, "payload", data)
-    end
     %{
       "expiration" => expiration,
       "priority" =>  priority,
-      "notification"=> notification
+      "data" => data,
+      "notification"=> %{
+        "alert" => %{
+          "title" => title,
+          "body" => message,
+        },
+        "sound" => sound,
+        "content-available" => "1"
+      },
     }
   end
 

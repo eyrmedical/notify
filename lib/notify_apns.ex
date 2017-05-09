@@ -8,8 +8,8 @@ defmodule Notify.APNS do
   @key_id Application.get_env(:notify, :key_id)
   @team_id Application.get_env(:notify, :team_id)
   @bundle_id Application.get_env(:notify, :bundle_id)
-  @key Application.get_env(:notify, :key_path)
-  |> JOSE.JWK.from_pem_file()
+  @key Application.get_env(:notify, :key_path) |> JOSE.JWK.from_pem_file()
+
 
   @type result :: {atom(), String.t()}
 
@@ -48,7 +48,8 @@ defmodule Notify.APNS do
   def push(%{
     "expiration" => expiration,
     "priority" => priority,
-    "notification" => notification
+    "notification" => notification,
+    "data" => data
   }, device_id) do
     Logger.info "Pushing notification to #{device_id}"
 
@@ -63,7 +64,7 @@ defmodule Notify.APNS do
       {"apns-expiration", expiration |> to_string()},
       {"apns-priority", priority |> to_string()}
     ]
-    body = Poison.encode!(%{"aps" => notification}) |> IO.inspect
+    body = Poison.encode!(%{"aps" => notification, "payload" => data}) |> IO.inspect
 
     Kadabra.request(pid, headers, body)
 
