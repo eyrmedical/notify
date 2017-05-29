@@ -29,7 +29,7 @@ defmodule Notify do
   """
   def push({ platform, device_id }, %Notification{} = notification) do
     case platform do
-      :ios -> parse(:ios, notification) |> Notify.APNS.push(device_id)
+      :ios -> parse(:ios, notification) |> Notify.APN.push(device_id)
       :android -> parse(:android, notification, device_id) |> Notify.FCM.push()
       invalid_platform -> Logger.warn "Invalid platform: #{platform}"
     end
