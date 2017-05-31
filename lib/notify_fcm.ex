@@ -4,13 +4,13 @@ defmodule Notify.FCM do
 	A module for generating push notifications on the Firebase Cloud Messaging platform (from Google) using HTTP requests.
 	"""
 
-	@config Application.get_env(:notify, Notify.FCM) |> IO.inspect
-	@project_id Keyword.get(@config, :project_id) || "PROJECT_ID"
+	@config Application.get_env(:notify, Notify.FCM) || []
+	@project_id Keyword.get(@config, :project_id)
 	@server_key Keyword.get(@config, :server_key)
 	@url "https://fcm.googleapis.com/fcm/send"
 	@type result :: {atom(), String.t()}
 
-	if @config do
+	if @config != [] do
 		unless @server_key do
 			raise """
 			Missing API key for Firebase Cloud Messaging in configuration. Find it at:
