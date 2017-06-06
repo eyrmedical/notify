@@ -47,34 +47,74 @@ defmodule Notify.APN do
 	@doc """
 	Push a notification to device
 	"""
-	@spec push(Map.t(), String.t()) :: result
-	def push(%{
-		"expiration" => expiration,
-		"priority" => priority,
-		"notification" => notification,
-		"data" => data
-	}, device_id) do
-		Logger.info "Pushing notification to #{device_id}"
-
-		{:ok, pid} = Kadabra.open(get_url(), :https)
-
-		headers = [
-			{":authority", get_url() |> to_string()},
+	@spec push(String.t(), Map.t()) :: result
+	def push device,
+		%Notification{
+			expiration: expiration,
+			data: data,
+			sound: sound,
+			voip: true
+		}
+	do
+		[ 	{":authority", get_url() |> to_string()},
 			{":method", "POST"},
-			{":path", "/3/device/#{device_id}"},
+			{":path", "/3/device/#{device}"},
 			{"authorization", "bearer " <> get_token()},
-			{"apns-topic", @bundle_id},
+			{"apns-topic", "#{@bundle_id}.voip" },
+			{"apns-expiration", "0"},
+			{"apns-priority", "10"} ]
+		|> dispatch(%{
+			"data" => data,
+			"aps" => %{
+				"sound" => sound }
+			}, device)
+	end
+
+	@spec push(String.t(), Map.t()) :: result
+	def push device,
+		%Notification{
+			title: title,
+			message: message,
+			expiration: expiration,
+			priority: priority,
+			data: data,
+			sound: sound,
+			voip: false
+		}
+	do
+		if priority == "low" do
+			priority = "5"
+		else
+			priority = "10"
+		end
+
+		[ 	{":authority", get_url() |> to_string()},
+			{":method", "POST"},
+			{":path", "/3/device/#{device}"},
+			{"authorization", "bearer " <> get_token()},
+			{"apns-topic", "#{@bundle_id}.voip" }, # TODO: remove .voip and find a way to mix regular and voip tokens
 			{"apns-expiration", expiration |> to_string()},
-			{"apns-priority", priority |> to_string()}
-		]
-		body = Poison.encode!(%{"aps" => notification, "payload" => data}) |> IO.inspect
+			{"apns-priority", priority} ]
+		|> dispatch(%{
+				"data" => data,
+				"aps" => %{
+					"alert" => %{
+						"title" => title,
+						"body" => message
+					}
+				}
+			}, device)
+	end
 
-		Kadabra.request(pid, headers, body)
-
-		receive do
-			{:end_stream, %Kadabra.Stream{} = stream} -> reply(stream, device_id)
-		after 5_000 ->
-			reply(:timeout, device_id)
+	@spec dispatch(List.t(), Map.t(), String.t()) :: result
+	defp dispatch(headers, body, device) do
+		with {:ok, pid} = Kadabra.open(get_url(), :https) do
+			Kadabra.request(pid, headers, Poison.encode!(body) )
+			receive do
+				{:end_stream, %Kadabra.Stream{} = stream} -> reply(stream, device)
+			after 5_000 ->
+				reply(:timeout, device)
+			end
 		end
 	end
 

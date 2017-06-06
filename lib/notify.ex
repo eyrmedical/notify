@@ -28,67 +28,20 @@ defmodule Notify do
 	@doc """
 	Send a notification to list of device_ids
 	"""
-	def push(device_ids, notification) when is_list(device_ids) do
-		for id <- device_ids, do: push(id, notification)
+	def push(recipients, notification) when is_list(recipients) do
+		for recipient <- recipients, do: push(recipient, notification)
 	end
 
 	@doc """
 	Send a notification to a single device_id
 	"""
-	def push({ platform, device_id }, %Notification{} = notification) do
-		case platform do
-			:ios ->
-				parse(:ios, notification)
-                |> Notify.APN.push(device_id)
-
-			:android ->
-                parse(:android, notification, device_id)
-                |> push_android
-
-			invalid_platform ->
-                Logger.warn "Invalid platform: #{platform}"
-		end
-	end
+	def push({:ios, device}, %Notification{} = notif), do: Notify.APN.push(device, notif)
+	def push({:android, device}, %Notification{} = notif) when @fcm, do: parse(device, notif) |> Notify.FCM.push()
+	def push({:android, device}, %Notification{} = notif) when @gcm, do: parse(device, notif) |> Notify.GCM.push()
 	def push({ platform, device_id}, _), do: {:error, "Invalid %Notification{}"}
 
-    defp push_android(notification) when @fcm, do: Notify.FCM.push(notification)
-    defp push_android(notification) when @gcm, do: Notify.GCM.push(notification)
-    defp push_android(_), do: Logger.warn "No Android Cloud Messaging service configured"
-
-	@spec parse(:ios, %Notification{}) :: Map.t()
-	defp parse(:ios, %Notification{
-		priority: priority,
-		title: title,
-		message: message,
-		data: data,
-		sound: sound,
-		expiration: expiration
-	}) do
-
-		# Change "high" or "normal" to corresponding numeric values for APNS. Defaults to "high" / 10.
-		if priority == "normal" do
-			priority = 5
-		else
-			priority = 10
-		end
-
-		%{
-			"expiration" => expiration,
-			"priority" =>  priority,
-			"data" => data,
-			"notification"=> %{
-				"alert" => %{
-					"title" => title,
-					"body" => message,
-				},
-				"sound" => sound,
-				"content-available" => "1"
-			},
-		}
-	end
-
-	@spec parse(:android, %Notification{}, String.t()) :: Map.t()
-	defp parse(:android,
+	@spec parse(String.t(), %Notification{}) :: Map.t()
+	defp parse(device_id,
 		%Notification{
 			priority: priority,
 			title: title,
@@ -98,7 +51,7 @@ defmodule Notify do
 			color: color,
 			icon: icon,
 			tag: tag
-		}, device_id)
+		})
 	do
 		%{
 			"to" => device_id,
@@ -114,7 +67,4 @@ defmodule Notify do
 			"data" => data
 		}
 	end
-
-	@spec timestamp() :: number()
-	defp timestamp(), do: DateTime.utc_now() |> DateTime.to_unix()
 end
