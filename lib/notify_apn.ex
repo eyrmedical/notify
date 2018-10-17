@@ -5,7 +5,7 @@ defmodule Notify.APN do
 	A module for generating push notifications on the Apple Push Notification service using HTTP2 requests and the new .p8 key standard. This module will generate JWT tokens from the .p8 key and use them to push notifications to device IDs.
 	"""
 
-	@config Application.get_env(:notify, Notify.APN) |> IO.inspect
+	@config Application.get_env(:notify, Notify.APN)
 	@key_id Keyword.get(@config, :key_id)
 	@team_id Keyword.get(@config, :team_id)
 	@bundle_id Keyword.get(@config, :bundle_id)
@@ -50,7 +50,6 @@ defmodule Notify.APN do
 	@spec push(String.t(), Map.t()) :: result
 	def push device,
 		%Notification{
-			expiration: expiration,
 			data: data,
 			sound: sound,
 			voip: true
@@ -81,16 +80,11 @@ defmodule Notify.APN do
 			expiration: expiration,
 			priority: priority,
 			data: data,
-			sound: sound,
+			sound: _sound,
 			voip: false
 		} = notification
 	do
-		if priority == "low" do
-			priority = "5"
-		else
-			priority = "10"
-		end
-
+		priority = if priority == "low", do: "5", else: "10"
 		aps_payload =
 			%{
 				"alert" => %{

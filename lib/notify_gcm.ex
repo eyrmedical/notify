@@ -1,13 +1,14 @@
 defmodule Notify.GCM do
-	require Logger
 	@moduledoc """
 	A module for generating push notifications on the Firebase Cloud Messaging platform (from Google) using HTTP requests.
 	"""
 
+	require Logger
+
 	@config        Application.get_env(:notify, Notify.GCM)
-    @server_id     Keyword.get(@config, :server_id)
-    @server_key    Keyword.get(@config, :server_key)
-    @sender_id     Keyword.get(@config, :sender_id)
+  @server_id     Keyword.get(@config, :server_id)
+  @server_key    Keyword.get(@config, :server_key)
+  @sender_id     Keyword.get(@config, :sender_id)
 	@url "https://gcm-http.googleapis.com/gcm/send"
 	@type result :: {atom(), String.t()}
 
@@ -56,13 +57,12 @@ defmodule Notify.GCM do
 	end
 
 	@spec reply(Map.t(), integer()) :: result
-	defp reply(body, 200) do
-		IO.inspect(body)
+	defp reply(_body, 200) do
 		{:error, "Invalid body format"}
 	end
 
 	@spec reply(Map.t(), integer()) :: result
-	defp reply(body, status), do: {:error, "Unexpected status #{status}"}
+	defp reply(_body, status), do: {:error, "Unexpected status #{status}"}
 
 
 end

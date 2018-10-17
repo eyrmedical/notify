@@ -38,7 +38,7 @@ defmodule Notify do
 	def push({:ios, device}, %Notification{} = notif), do: Notify.APN.push(device, notif)
 	def push({:android, device}, %Notification{} = notif) when @fcm, do: parse(device, notif) |> Notify.FCM.push()
 	def push({:android, device}, %Notification{} = notif) when @gcm, do: parse(device, notif) |> Notify.GCM.push()
-	def push({ platform, device_id}, _), do: {:error, "Invalid %Notification{}"}
+	def push({_platform, _device_id}, _), do: {:error, "Invalid %Notification{}"}
 
 	@spec parse(String.t(), %Notification{}) :: Map.t()
 	defp parse(device_id,
