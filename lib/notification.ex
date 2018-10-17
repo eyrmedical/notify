@@ -8,5 +8,7 @@ defmodule Notification do
     color: Application.get_env(:notify, :color, "#333333"),
     icon: Application.get_env(:notify, :icon, "ic_notification"),
     tag: nil,
-    voip: false
+    voip: false,
+    content_available: nil,
+    badge: nil
 end

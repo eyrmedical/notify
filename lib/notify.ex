@@ -51,20 +51,33 @@ defmodule Notify do
 			color: color,
 			icon: icon,
 			tag: tag
-		})
+		} = notification)
 	do
-		%{
-			"to" => device_id,
-			"priority" => priority,
-			"notification" => %{
+		notification_payload =
+			%{
 				"title" => title,
 				"body" => message,
 				"sound" => sound,
 				"color" => color,
 				"icon" => icon,
-				"tag" => tag,
-			},
+				"tag" => tag
+			}
+			|> maybe_attach_badge(notification)
+			|> maybe_attach_content_available(notification)
+
+		%{
+			"to" => device_id,
+			"priority" => priority,
+			"notification" => notification_payload,
 			"data" => data
 		}
 	end
+
+	defp maybe_attach_content_available(payload, %Notification{content_available: content_available})
+	when content_available != nil, do: Map.put(payload, "content-available", content_available)
+	defp maybe_attach_content_available(payload, _), do: payload
+
+	defp maybe_attach_badge(payload, %Notification{badge: badge})
+	when badge != nil, do: Map.put(payload, "badge", badge)
+	defp maybe_attach_badge(payload, _), do: payload
 end
