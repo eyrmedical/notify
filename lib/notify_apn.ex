@@ -5,7 +5,7 @@ defmodule Notify.APN do
 	A module for generating push notifications on the Apple Push Notification service using HTTP2 requests and the new .p8 key standard. This module will generate JWT tokens from the .p8 key and use them to push notifications to device IDs.
 	"""
 
-	@config Application.get_env(:notify, Notify.APN) |> IO.inspect
+	@config Application.get_env(:notify, Notify.APN)
 	@key_id Keyword.get(@config, :key_id)
 	@team_id Keyword.get(@config, :team_id)
 	@bundle_id Keyword.get(@config, :bundle_id)
@@ -50,24 +50,26 @@ defmodule Notify.APN do
 	@spec push(String.t(), Map.t()) :: result
 	def push device,
 		%Notification{
-			expiration: expiration,
 			data: data,
 			sound: sound,
 			voip: true
 		}
 	do
-		[ 	{":authority", get_url() |> to_string()},
+		[
+			{":authority", get_url() |> to_string()},
 			{":method", "POST"},
 			{":path", "/3/device/#{device}"},
 			{"authorization", "bearer " <> get_token()},
 			{"apns-topic", "#{@bundle_id}.voip" },
 			{"apns-expiration", "0"},
-			{"apns-priority", "10"} ]
+			{"apns-priority", "10"}
+		]
 		|> dispatch(%{
 			"data" => data,
 			"aps" => %{
-				"sound" => sound }
-			}, device)
+				"sound" => sound
+			}
+		}, device)
 	end
 
 	@spec push(String.t(), Map.t()) :: result
@@ -78,31 +80,33 @@ defmodule Notify.APN do
 			expiration: expiration,
 			priority: priority,
 			data: data,
-			sound: sound,
+			sound: _sound,
 			voip: false
-		}
+		} = notification
 	do
-		if priority == "low" do
-			priority = "5"
-		else
-			priority = "10"
-		end
+		priority = if priority == "low", do: "5", else: "10"
+		aps_payload =
+			%{
+				"alert" => %{
+					"title" => title,
+					"body" => message
+				}
+			}
+			|> maybe_attach_content_available(notification)
+			|> maybe_attach_badge(notification)
 
-		[ 	{":authority", get_url() |> to_string()},
+		[
+			{":authority", get_url() |> to_string()},
 			{":method", "POST"},
 			{":path", "/3/device/#{device}"},
 			{"authorization", "bearer " <> get_token()},
 			{"apns-topic", "#{@bundle_id}.voip" }, # TODO: remove .voip and find a way to mix regular and voip tokens
 			{"apns-expiration", expiration |> to_string()},
-			{"apns-priority", priority} ]
+			{"apns-priority", priority}
+		]
 		|> dispatch(%{
 				"data" => data,
-				"aps" => %{
-					"alert" => %{
-						"title" => title,
-						"body" => message
-					}
-				}
+				"aps" => aps_payload
 			}, device)
 	end
 
@@ -188,6 +192,16 @@ defmodule Notify.APN do
 		Logger.warn "Notification to #{device_id} timed out."
 		{:error, "Request timed out"}
 	end
+
+	@spec maybe_attach_content_available(map(), %Notification{}) :: map()
+	defp maybe_attach_content_available(payload, %Notification{content_available: content_available})
+	when content_available != nil, do: Map.put(payload, "content-available", content_available)
+	defp maybe_attach_content_available(payload, _), do: payload
+
+	@spec maybe_attach_badge(map(), %Notification{}) :: map()
+	defp maybe_attach_badge(payload, %Notification{badge: badge})
+	when badge != nil, do: Map.put(payload, "badge", badge)
+	defp maybe_attach_badge(payload, _), do: payload
 
 
 	@spec get_url() :: binary() # Kadabra requires a charlist as address

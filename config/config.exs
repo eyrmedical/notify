@@ -6,4 +6,6 @@ config :logger,
 config :notify,
   production: Mix.env() == :prod || :false
 
-import_config "secret.exs"
+if File.exists?("config/secret.exs") do
+  import_config "secret.exs"
+end

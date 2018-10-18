@@ -1,8 +1,9 @@
 defmodule Notify.FCM do
-	require Logger
 	@moduledoc """
 	A module for generating push notifications on the Firebase Cloud Messaging platform (from Google) using HTTP requests.
 	"""
+
+	require Logger
 
 	@config Application.get_env(:notify, Notify.FCM) || []
 	@project_id Keyword.get(@config, :project_id)
@@ -56,12 +57,9 @@ defmodule Notify.FCM do
 
 	@spec reply(Map.t(), integer()) :: result
 	defp reply(body, 200) do
-		IO.inspect(body)
 		{:error, "Invalid body format"}
 	end
 
 	@spec reply(Map.t(), integer()) :: result
-	defp reply(body, status), do: {:error, "Unexpected status #{status}"}
-
-
+	defp reply(_body, status), do: {:error, "Unexpected status #{status}"}
 end
