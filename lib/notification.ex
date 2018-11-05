@@ -9,6 +9,6 @@ defmodule Notification do
     icon: Application.get_env(:notify, :icon, "ic_notification"),
     tag: nil,
     voip: false,
-    content_available: nil,
+    content_available: 1,
     badge: nil
 end

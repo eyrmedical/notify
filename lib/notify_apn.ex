@@ -194,8 +194,8 @@ defmodule Notify.APN do
 	end
 
 	@spec maybe_attach_content_available(map(), %Notification{}) :: map()
-	defp maybe_attach_content_available(payload, %Notification{content_available: content_available})
-	when content_available != nil, do: Map.put(payload, "content-available", content_available)
+	defp maybe_attach_content_available(payload, %Notification{content_available: content_available, priority: priority})
+	when content_available != nil and priority != "low", do: Map.put(payload, "content-available", content_available)
 	defp maybe_attach_content_available(payload, _), do: payload
 
 	@spec maybe_attach_badge(map(), %Notification{}) :: map()

@@ -20,3 +20,5 @@ erl_crash.dump
 *.ez
 /keys/*.p8
 /config/secret.exs
+.elixir_ls
+/config/APNsAuthKey_AL4X3KTR62.p8
