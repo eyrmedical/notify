@@ -1,36 +1,28 @@
 defmodule Notify.FCM do
 	@moduledoc """
 	A module for generating push notifications on the Firebase Cloud Messaging platform (from Google) using HTTP requests.
+
+	In case you Missing API key for Firebase Cloud Messaging in configuration. Find it at:
+	https://console.firebase.google.com/project/PROJECT_ID/settings/cloudmessaging
 	"""
 
 	require Logger
 
-	@config Application.get_env(:notify, Notify.FCM) || []
-	@project_id Keyword.get(@config, :project_id)
-	@server_key Keyword.get(@config, :server_key)
 	@url "https://fcm.googleapis.com/fcm/send"
 	@type result :: {atom(), String.t()}
-
-	if @config != [] do
-		unless @server_key do
-			raise """
-			Missing API key for Firebase Cloud Messaging in configuration. Find it at:
-			https://console.firebase.google.com/project/#{@project_id}/settings/cloudmessaging
-			"""
-		end
-	end
 
 	@doc """
 	Send a push notification through the Firebase Cloud Messaging service.
 	"""
 	@spec push(Map.t()) :: result
-	def push(%{ "to" => device_id } = notification) do
+	def push(%{"to" => device_id} = notification) do
 		Logger.info "Pushing notification to #{device_id}"
 
+		server_key = config(:server_key)
 		body = Poison.encode!(notification)
 		headers = [
 			"Content-Type": "application/json",
-			"Authorization": "key=#{@server_key}"
+			"Authorization": "key=#{server_key}"
 		]
 
 		HTTPotion.post(@url, body: body, headers: headers)
@@ -65,4 +57,10 @@ defmodule Notify.FCM do
 
 	@spec reply(Map.t(), integer()) :: result
 	defp reply(_body, status), do: {:error, "Unexpected status #{status}"}
+
+	@spec config(atom()) :: any()
+	defp config(key) do
+		Application.get_env(:notify, Notify.FCM)
+		|> Keyword.get(key)
+	end
 end

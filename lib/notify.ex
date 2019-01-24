@@ -16,14 +16,6 @@ defmodule Notify do
 			color: "#FF6677", # (Android notification color)
 			sound: "sound", # (Notification sound)
 	"""
-	@gcm Application.get_env(:notify, Notify.GCM) != nil
-	@fcm Application.get_env(:notify, Notify.FCM) != nil
-
-	if @gcm and @fcm do
-		raise """
-		Found configurations for both Firebase (FCM) and Google Cloud Messaging (GCM). Remove one of the configurations.
-		"""
-	end
 
 	@doc """
 	Send a notification to list of device_ids
@@ -36,8 +28,16 @@ defmodule Notify do
 	Send a notification to a single device_id
 	"""
 	def push({:ios, device}, %Notification{} = notif), do: Notify.APN.push(device, notif)
-	def push({:android, device}, %Notification{} = notif) when @fcm, do: parse(device, notif) |> Notify.FCM.push()
-	def push({:android, device}, %Notification{} = notif) when @gcm, do: parse(device, notif) |> Notify.GCM.push()
+	def push({:android, device}, %Notification{} = notif) do
+		cond do
+			is_fcm?() ->
+				parse(device, notif) |> Notify.FCM.push()
+			is_gcm?() ->
+				parse(device, notif) |> Notify.GCM.push()
+			true ->
+				{:error, "Configure either FCM or GCM modules"}
+		end
+	end
 	def push({_platform, _device_id}, _), do: {:error, "Invalid %Notification{}"}
 
 	@spec parse(String.t(), %Notification{}) :: Map.t()
@@ -66,5 +66,13 @@ defmodule Notify do
 			},
 			"data" => data
 		}
+	end
+
+	defp is_fcm? do
+		Application.get_env(:notify, Notify.FCM) != nil
+	end
+
+	defp is_gcm? do
+		Application.get_env(:notify, Notify.GCM) != nil
 	end
 end
