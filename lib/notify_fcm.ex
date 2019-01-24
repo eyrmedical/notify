@@ -39,7 +39,10 @@ defmodule Notify.FCM do
 
 
 	@spec parse_response(%HTTPotion.Response{}) :: result
-	defp parse_response(%HTTPotion.Response{ status_code: status, body: body }) do
+	defp parse_response(%HTTPotion.Response{status_code: 401}) do
+		reply(%{"results" => [%{"error" => "Unauthorized"}]}, 401)
+	end
+	defp parse_response(%HTTPotion.Response{status_code: status, body: body}) do
 		Poison.decode!(body)
 		|> reply(status)
 	end
@@ -56,7 +59,7 @@ defmodule Notify.FCM do
 	end
 
 	@spec reply(Map.t(), integer()) :: result
-	defp reply(body, 200) do
+	defp reply(_body, 200) do
 		{:error, "Invalid body format"}
 	end
 

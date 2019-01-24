@@ -3,7 +3,7 @@ defmodule NotifyTest do
 	doctest Notify
 
 	@test_apn true
-	@test_fcm false
+	@test_fcm true
 	@test_gcm false
 
 	@ios {:ios, Application.get_env(:notify, :device_token_ios) }
