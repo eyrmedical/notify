@@ -36,7 +36,7 @@ defmodule Notify do
 	Send a notification to a single device_id
 	"""
 	def push({:ios, device}, %Notification{} = notif), do: Notify.APN.push(device, notif)
-	def push({:android, device}, %Notification{} = notif) when @fcm, do: parse(device, notif) |> Notify.FCM.push()
+	def push({:android, device}, %Notification{} = notif) when @fcm, do: parse_fcm(device, notif) |> Notify.FCM.push()
 	def push({:android, device}, %Notification{} = notif) when @gcm, do: parse(device, notif) |> Notify.GCM.push()
 	def push({_platform, _device_id}, _), do: {:error, "Invalid %Notification{}"}
 
@@ -64,6 +64,35 @@ defmodule Notify do
 				"icon" => icon,
 				"tag" => tag,
 			},
+			"data" => data
+		}
+	end
+
+	@spec parse_fcm(String.t(), %Notification{}) :: Map.t()
+	defp parse_fcm(device_id,
+		%Notification{
+			priority: priority,
+			title: title,
+			message: message,
+			data: data,
+			sound: sound,
+			color: color,
+			icon: icon,
+			tag: tag
+		})
+	do
+		data =
+			Map.put(data, "notification", %{
+				"title" => title,
+				"body" => message,
+				"sound" => sound,
+				"color" => color,
+				"icon" => icon,
+				"tag" => tag,
+			})
+		%{
+			"to" => device_id,
+			"priority" => priority,
 			"data" => data
 		}
 	end
