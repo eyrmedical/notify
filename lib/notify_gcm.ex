@@ -5,14 +5,14 @@ defmodule Notify.GCM do
 
 	require Logger
 
-	@config        Application.get_env(:notify, Notify.GCM)
+	@config        Application.get_env(:notify, Notify.GCM) || []
   @server_id     Keyword.get(@config, :server_id)
   @server_key    Keyword.get(@config, :server_key)
   @sender_id     Keyword.get(@config, :sender_id)
 	@url "https://gcm-http.googleapis.com/gcm/send"
 	@type result :: {atom(), String.t()}
 
-	if @config do
+	if @config != [] do
 		unless @server_key do
 			raise """
 			Missing API key for Google Cloud Messaging in configuration. Find it at:

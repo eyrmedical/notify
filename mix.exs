@@ -3,7 +3,7 @@ defmodule Notify.Mixfile do
 
   def project do
     [app: :notify,
-     version: "0.1.6",
+     version: "0.1.8",
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -28,6 +28,11 @@ defmodule Notify.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:joken, "~> 1.4"}, {:poison, "~> 2.2"}, {:kadabra, "~> 0.2.0"}, {:httpotion, "~> 3.0.2"}]
+    [
+      {:joken, "~> 1.4"},
+      {:poison, "~> 2.2"},
+      {:kadabra, "~> 0.2.0"},
+      {:httpotion, "~> 3.0.2"}
+    ]
   end
 end
