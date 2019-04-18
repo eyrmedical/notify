@@ -9,7 +9,7 @@ by adding `notify` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:notify, "~> 0.1.9"}]
+  [{:notify, "~> 0.1.10"}]
 end
 ```
 
