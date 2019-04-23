@@ -1,4 +1,4 @@
-defmodule Notification do
+defmodule Notify.Notification do
   defstruct title: "",
     message: "",
     expiration: 0,
@@ -10,5 +10,6 @@ defmodule Notification do
     tag: nil,
     voip: false,
     content_available: 1,
-    badge: nil
+    badge: nil,
+    token: nil
 end
