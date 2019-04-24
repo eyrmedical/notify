@@ -15,7 +15,7 @@ defmodule Notify.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger, :poison, :joken, :kadabra, :httpotion]]
+    [extra_applications: [:logger, :poison, :joken, :kadabra]]
   end
 
   # Dependencies can be Hex packages:
@@ -31,8 +31,7 @@ defmodule Notify.Mixfile do
     [
       {:joken, "~> 1.4"},
       {:poison, "~> 2.2"},
-      {:kadabra, "~> 0.2.0"},
-      {:httpotion, "~> 3.0.2"}
+      {:kadabra, "~> 0.2.0"}
     ]
   end
 end

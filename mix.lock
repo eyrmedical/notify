@@ -1,13 +1,14 @@
-%{"base64url": {:hex, :base64url, "0.0.1", "36a90125f5948e3afd7be97662a1504b934dd5dac78451ca6e9abf85a10286be", [:rebar], []},
+%{
+  "base64url": {:hex, :base64url, "0.0.1", "36a90125f5948e3afd7be97662a1504b934dd5dac78451ca6e9abf85a10286be", [:rebar], [], "hexpm"},
   "chatterbox": {:hex, :chatterbox, "0.4.2", "ba68296fa79f0ca31139713c688c350a26c8844e1244f1736d7845c1c72e5f87", [:rebar3], [{:hpack, "~>0.2.3", [hex: :hpack_erl, optional: false]}, {:lager, "~>3.2.4", [hex: :lager, optional: false]}]},
   "goldrush": {:hex, :goldrush, "0.1.9", "f06e5d5f1277da5c413e84d5a2924174182fb108dabb39d5ec548b27424cd106", [:rebar3], []},
-  "hpack": {:hex, :hpack_erl, "0.2.3", "17670f83ff984ae6cd74b1c456edde906d27ff013740ee4d9efaa4f1bf999633", [:rebar3], []},
-  "httpotion": {:hex, :httpotion, "3.0.2", "525b9bfeb592c914a61a8ee31fdde3871e1861dfe805f8ee5f711f9f11a93483", [:mix], [{:ibrowse, "~> 4.2", [hex: :ibrowse, optional: false]}]},
+  "hpack": {:hex, :hpack_erl, "0.2.3", "17670f83ff984ae6cd74b1c456edde906d27ff013740ee4d9efaa4f1bf999633", [:rebar3], [], "hexpm"},
   "ibrowse": {:hex, :ibrowse, "4.4.0", "2d923325efe0d2cb09b9c6a047b2835a5eda69d8a47ed6ff8bc03628b764e991", [:rebar3], []},
-  "joken": {:hex, :joken, "1.4.1", "16b87dcbad59dfb1e75231b9d6e504d852ce11f849efb7150a41dcad29dba8e1", [:mix], [{:jose, "~> 1.8", [hex: :jose, optional: false]}, {:plug, "~> 1.0", [hex: :plug, optional: true]}, {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0", [hex: :poison, optional: true]}]},
-  "jose": {:hex, :jose, "1.8.3", "1285151e6f3b70aa8b60c27801aed6d20f7bb9e87116fd7d1e405ea450549aad", [:mix, :rebar3], [{:base64url, "~> 0.0.1", [hex: :base64url, optional: false]}]},
-  "kadabra": {:hex, :kadabra, "0.2.0", "35fbfd90cbf27f541e06181c3a5383d8454cd799916a5f98bb789f1c2ac37ca0", [:mix], [{:hpack, "~> 0.2.3", [hex: :hpack_erl, optional: false]}, {:scribe, "~> 0.4", [hex: :scribe, optional: false]}]},
+  "joken": {:hex, :joken, "1.5.0", "42a0953e80bd933fc98a0874e156771f78bf0e92abe6c3a9c22feb6da28efb0b", [:mix], [{:jose, "~> 1.8", [hex: :jose, repo: "hexpm", optional: false]}, {:plug, "~> 1.0", [hex: :plug, repo: "hexpm", optional: true]}, {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0", [hex: :poison, repo: "hexpm", optional: true]}], "hexpm"},
+  "jose": {:hex, :jose, "1.9.0", "4167c5f6d06ffaebffd15cdb8da61a108445ef5e85ab8f5a7ad926fdf3ada154", [:mix, :rebar3], [{:base64url, "~> 0.0.1", [hex: :base64url, repo: "hexpm", optional: false]}], "hexpm"},
+  "kadabra": {:hex, :kadabra, "0.2.2", "4e1d19ca6dd8df3171088f6ca9839039cab28c1fd9892e6b17dd67f9b4952988", [:mix], [{:hpack, "~> 0.2.3", [hex: :hpack_erl, repo: "hexpm", optional: false]}, {:scribe, "~> 0.4", [hex: :scribe, repo: "hexpm", optional: false]}], "hexpm"},
   "lager": {:hex, :lager, "3.2.4", "a6deb74dae7927f46bd13255268308ef03eb206ec784a94eaf7c1c0f3b811615", [:rebar3], [{:goldrush, "0.1.9", [hex: :goldrush, optional: false]}]},
-  "pane": {:hex, :pane, "0.1.1", "4a9b46957a02991acbce012169ab7e8ecff74ad24886f94b142680062b10f167", [:mix], []},
-  "poison": {:hex, :poison, "2.2.0", "4763b69a8a77bd77d26f477d196428b741261a761257ff1cf92753a0d4d24a63", [:mix], []},
-  "scribe": {:hex, :scribe, "0.5.0", "1fe6dfffc4264a39633c1bd3fc9ce8377546974c40c7cd2a06194b2c2e91bba0", [:mix], [{:pane, "~> 0.1", [hex: :pane, optional: false]}]}}
+  "pane": {:hex, :pane, "0.3.0", "7b028e2aa8f004b62a965de983d824ad20d94f3c9c82b2bb4a9cdcebeb9e7060", [:mix], [], "hexpm"},
+  "poison": {:hex, :poison, "2.2.0", "4763b69a8a77bd77d26f477d196428b741261a761257ff1cf92753a0d4d24a63", [:mix], [], "hexpm"},
+  "scribe": {:hex, :scribe, "0.8.2", "76b34ccd053185354d701607e3c98e6ec6c33d9fa127855b74e96155a23736f5", [:mix], [{:pane, "~> 0.2", [hex: :pane, repo: "hexpm", optional: false]}], "hexpm"},
+}

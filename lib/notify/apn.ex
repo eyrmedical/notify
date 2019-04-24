@@ -1,6 +1,7 @@
 defmodule Notify.APN do
-  require Logger
+  alias Notify.Notification
   import Joken
+  require Logger
 
   @moduledoc """
   A module for generating push notifications on the Apple Push Notification service using HTTP2 requests and the new .p8 key standard. This module will generate JWT tokens from the .p8 key and use them to push notifications to device IDs.
@@ -11,16 +12,18 @@ defmodule Notify.APN do
   @doc """
   Push a notification to device
   """
-  @spec push(String.t(), Map.t()) :: result
+  @spec push(%Notification{}) :: result
   def push(
-        device,
         %Notification{
+          token: device,
           data: data,
           sound: sound,
-          voip: true
+          voip: true,
         }
-      ) do
-    [
+      )
+    do
+
+    headers = [
       {":authority", get_url() |> to_string()},
       {":method", "POST"},
       {":path", "/3/device/#{device}"},
@@ -29,43 +32,29 @@ defmodule Notify.APN do
       {"apns-expiration", "0"},
       {"apns-priority", "10"}
     ]
-    |> dispatch(
-      %{
-        "data" => data,
-        "aps" => %{
-          "sound" => sound
-        }
-      },
-      device
-    )
+
+    aps = %{"sound" => sound}
+    message = Map.put(data, "aps", aps)
+    dispatch(headers, message, device)
   end
 
-  @spec push(String.t(), Map.t()) :: result
   def push(
-        device,
         %Notification{
+          token: device,
           title: title,
           message: message,
           expiration: expiration,
           priority: priority,
           data: data,
           sound: _sound,
-          voip: false
+          voip: false,
+
         } = notification
       ) do
+
     priority = if priority == "low", do: "5", else: "10"
 
-    aps_payload =
-      %{
-        "alert" => %{
-          "title" => title,
-          "body" => message
-        }
-      }
-      |> maybe_attach_content_available(notification)
-      |> maybe_attach_badge(notification)
-
-    [
+    headers = [
       {":authority", get_url() |> to_string()},
       {":method", "POST"},
       {":path", "/3/device/#{device}"},
@@ -75,13 +64,14 @@ defmodule Notify.APN do
       {"apns-expiration", expiration |> to_string()},
       {"apns-priority", priority}
     ]
-    |> dispatch(
-      %{
-        "data" => data,
-        "aps" => aps_payload
-      },
-      device
-    )
+
+    aps =
+      %{"alert" => %{"title" => title, "body" => message}}
+        |> maybe_attach_content_available(notification)
+        |> maybe_attach_badge(notification)
+
+    message = Map.put(data, "aps", aps)
+    dispatch(headers, message, device)
   end
 
   @spec dispatch(List.t(), Map.t(), String.t()) :: result
@@ -90,9 +80,12 @@ defmodule Notify.APN do
       Kadabra.request(pid, headers, Poison.encode!(body))
 
       receive do
-        {:end_stream, %Kadabra.Stream{} = stream} -> reply(stream, device)
+        {:end_stream, %Kadabra.Stream{} = stream} ->
+          Kadabra.close(pid)
+          reply(stream, device)
       after
         5_000 ->
+          Kadabra.close(pid)
           reply(:timeout, device)
       end
     end
