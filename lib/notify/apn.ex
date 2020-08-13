@@ -190,7 +190,7 @@ defmodule Notify.APN do
     if Application.get_env(:notify, :production) do
       'api.push.apple.com'
     else
-      'api.development.push.apple.com'
+      'api.sandbox.push.apple.com'
     end
   end
 
