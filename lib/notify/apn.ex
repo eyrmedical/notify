@@ -30,7 +30,8 @@ defmodule Notify.APN do
       {"authorization", "bearer " <> get_token()},
       {"apns-topic", "#{config(:bundle_id)}.voip"},
       {"apns-expiration", "0"},
-      {"apns-priority", "10"}
+      {"apns-priority", "10"},
+      {"apns-push-type", "voip"}
     ]
 
     aps = %{"sound" => sound}
