@@ -98,16 +98,15 @@ defmodule Notify.APN do
   """
   @spec create_token() :: String.t()
   def create_token() do
-    time = timestamp()
+    token_config =
+      default_claims()
+      |> add_claim("iss", fn -> config(:team_id) end, &(&1 =~ config(:team_id)))
 
-    new_token =
-      %{"iss" => config(:team_id), "iat" => time}
-      |> token
-      |> with_header_arg("kid", config(:key_id))
-      |> sign(es256(key()))
-      |> get_compact()
+    signer = Joken.Signer.create("ES256", key(), %{"kid" => config(:key_id)})
 
-    :ets.insert(:apns_tokens, {"token", new_token, time + 3000})
+    {:ok, new_token, claims} = Joken.generate_and_sign(token_config, nil, signer)
+
+    :ets.insert(:apns_tokens, {"token", new_token, claims["iat"] + 3000})
 
     to_string(new_token)
   end
@@ -192,7 +191,11 @@ defmodule Notify.APN do
   defp timestamp(), do: DateTime.utc_now() |> DateTime.to_unix()
 
   @spec key() :: %JOSE.JWK{}
-  defp key(), do: JOSE.JWK.from_pem_file(config(:key_path))
+  defp key() do
+    jwk = JOSE.JWK.from_pem_file(config(:key_path))
+    # https://github.com/joken-elixir/joken/issues/294
+    %{"pem" => JOSE.JWK.to_pem(jwk) |> elem(1)}
+  end
 
   @spec config(atom()) :: Keyword.t()
   defp config(key) do
