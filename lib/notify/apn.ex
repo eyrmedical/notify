@@ -1,6 +1,6 @@
 defmodule Notify.APN do
   alias Notify.Notification
-  import Joken
+  import Joken.Config
   require Logger
 
   @moduledoc """
@@ -13,16 +13,12 @@ defmodule Notify.APN do
   Push a notification to device
   """
   @spec push(%Notification{}) :: result
-  def push(
-        %Notification{
-          token: device,
-          data: data,
-          sound: sound,
-          voip: true,
-        }
-      )
-    do
-
+  def push(%Notification{
+        token: device,
+        data: data,
+        sound: sound,
+        voip: true
+      }) do
     headers = [
       {":authority", get_url() |> to_string()},
       {":method", "POST"},
@@ -48,11 +44,9 @@ defmodule Notify.APN do
           priority: priority,
           data: data,
           sound: _sound,
-          voip: false,
-
+          voip: false
         } = notification
       ) do
-
     priority = if priority == "low", do: "5", else: "10"
 
     headers = [
@@ -68,8 +62,8 @@ defmodule Notify.APN do
 
     aps =
       %{"alert" => %{"title" => title, "body" => message}}
-        |> maybe_attach_content_available(notification)
-        |> maybe_attach_badge(notification)
+      |> maybe_attach_content_available(notification)
+      |> maybe_attach_badge(notification)
 
     message = Map.put(data, "aps", aps)
     dispatch(headers, message, device)
