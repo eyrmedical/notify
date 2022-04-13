@@ -2,12 +2,14 @@ defmodule Notify.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :notify,
-     version: "0.1.12",
-     elixir: "~> 1.4",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps()]
+    [
+      app: :notify,
+      version: "0.4.0",
+      elixir: "~> 1.4",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps()
+    ]
   end
 
   # Configuration for the OTP application
@@ -29,7 +31,7 @@ defmodule Notify.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:joken, "~> 1.4"},
+      {:joken, "~> 2.4"},
       {:poison, "~> 2.2"},
       {:kadabra, "~> 0.2.0"}
     ]
