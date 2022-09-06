@@ -144,13 +144,7 @@ defmodule Notify.APN do
   end
 
   defp reply(%Kadabra.Stream{} = response, device_id) do
-    reason =
-      response
-      |> Map.get(:body, "")
-      |> Poison.decode!()
-      |> Map.get("reason", "Unexpected status")
-
-    Logger.warn("Notification to #{device_id} failed: #{reason}")
+    Logger.warn("Notification to #{device_id} failed: #{inspect response}")
     {:error, reason}
   end
 
