@@ -145,7 +145,7 @@ defmodule Notify.APN do
 
   defp reply(%Kadabra.Stream{} = response, device_id) do
     Logger.warn("Notification to #{device_id} failed: #{inspect response}")
-    {:error, reason}
+    {:error, response}
   end
 
   @spec reply(atom(), String.t()) :: result
