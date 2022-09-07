@@ -1,6 +1,8 @@
 defmodule Notify.APN do
   use Tesla
 
+  plug(Tesla.Middleware.Logger)
+
   alias Notify.Notification
   import Joken.Config
   require Logger
