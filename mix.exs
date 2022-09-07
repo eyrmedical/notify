@@ -4,7 +4,7 @@ defmodule Notify.Mixfile do
   def project do
     [
       app: :notify,
-      version: "0.4.2",
+      version: "0.4.3",
       elixir: "~> 1.4",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -17,7 +17,7 @@ defmodule Notify.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger, :poison, :joken, :kadabra]]
+    [extra_applications: [:logger, :poison, :joken]]
   end
 
   # Dependencies can be Hex packages:
@@ -33,7 +33,8 @@ defmodule Notify.Mixfile do
     [
       {:joken, "~> 2.4"},
       {:poison, "~> 2.2"},
-      {:kadabra, "~> 0.2.0"}
+      {:tesla, "~> 1.4"},
+      {:mint, "~> 1.4.2"}
     ]
   end
 end

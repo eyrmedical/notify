@@ -1,4 +1,6 @@
 defmodule Notify.APN do
+  use Tesla
+
   alias Notify.Notification
   import Joken.Config
   require Logger
@@ -70,20 +72,8 @@ defmodule Notify.APN do
   end
 
   @spec dispatch(List.t(), Map.t(), String.t()) :: result
-  defp dispatch(headers, body, device) do
-    with {:ok, pid} = Kadabra.open(get_url(), :https) do
-      Kadabra.request(pid, headers, Poison.encode!(body))
-
-      receive do
-        {:end_stream, %Kadabra.Stream{} = stream} ->
-          Kadabra.close(pid)
-          reply(stream, device)
-      after
-        5_000 ->
-          Kadabra.close(pid)
-          reply(:timeout, device)
-      end
-    end
+  defp dispatch(headers, body, _device) do
+    post(get_url(), Poison.encode!(body), [{:headers, headers}])
   end
 
   @doc """
@@ -136,24 +126,6 @@ defmodule Notify.APN do
     end
   end
 
-  @spec reply(%Kadabra.Stream{}, String.t()) :: result
-  defp reply(%Kadabra.Stream{:status => 200, :headers => headers}, device_id) do
-    Logger.info("Notification to #{device_id} succeeded")
-    [_, {"apns-id", notification_id}] = headers
-    {:ok, notification_id}
-  end
-
-  defp reply(%Kadabra.Stream{} = response, device_id) do
-    Logger.warn("Notification to #{device_id} failed: #{inspect response}")
-    {:error, response}
-  end
-
-  @spec reply(atom(), String.t()) :: result
-  defp reply(:timeout, device_id) do
-    Logger.warn("Notification to #{device_id} timed out.")
-    {:error, "Request timed out"}
-  end
-
   @spec maybe_attach_content_available(map(), %Notification{}) :: map()
   defp maybe_attach_content_available(payload, %Notification{
          content_available: content_available,
@@ -171,13 +143,12 @@ defmodule Notify.APN do
 
   defp maybe_attach_badge(payload, _), do: payload
 
-  # Kadabra requires a charlist as address
   @spec get_url() :: binary()
   defp get_url() do
     if Application.get_env(:notify, :production) do
-      'api.push.apple.com'
+      "api.push.apple.com"
     else
-      'api.sandbox.push.apple.com'
+      "api.sandbox.push.apple.com"
     end
   end
 
