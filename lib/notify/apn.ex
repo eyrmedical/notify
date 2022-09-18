@@ -19,12 +19,17 @@ defmodule Notify.APN do
         sound: sound,
         voip: true
       }) do
+
+    bundle_id = if Application.get_env(:notify, :production) do
+      "md.eyr.app"
+    else
+      "md.eyr.app.debug"
+    end
     headers = [
-      {":authority", get_url() |> to_string()},
       {":method", "POST"},
       {":path", "/3/device/#{device}"},
       {"authorization", "bearer " <> get_token()},
-      {"apns-topic", "#{config(:bundle_id)}.voip"},
+      {"apns-topic", "#{bundle_id}.voip"},
       {"apns-expiration", "0"},
       {"apns-priority", "10"},
       {"apns-push-type", "voip"}
@@ -49,13 +54,16 @@ defmodule Notify.APN do
       ) do
     priority = if priority == "low", do: "5", else: "10"
 
+    bundle_id = if Application.get_env(:notify, :production) do
+      "md.eyr.app"
+    else
+      "md.eyr.app.debug"
+    end
     headers = [
-      {":authority", get_url() |> to_string()},
       {":method", "POST"},
       {":path", "/3/device/#{device}"},
       {"authorization", "bearer " <> get_token()},
-      # TODO: remove .voip and find a way to mix regular and voip tokens
-      {"apns-topic", "#{config(:bundle_id)}.voip"},
+      {"apns-topic", "#{bundle_id}.voip"},
       {"apns-expiration", expiration |> to_string()},
       {"apns-priority", priority}
     ]
