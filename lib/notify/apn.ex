@@ -20,11 +20,7 @@ defmodule Notify.APN do
         voip: true
       }) do
 
-    bundle_id = if Application.get_env(:notify, :production) do
-      "md.eyr.app"
-    else
-      "md.eyr.app.debug"
-    end
+    bundle_id = Application.get_env(:notify, :bundle_id, "md.eyr.app")
     headers = [
       {":method", "POST"},
       {":path", "/3/device/#{device}"},
