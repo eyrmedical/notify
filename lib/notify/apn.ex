@@ -76,7 +76,7 @@ defmodule Notify.APN do
   @spec dispatch(List.t(), Map.t(), String.t()) :: result
   defp dispatch(headers, body, device) do
     with {:ok, pid} = Kadabra.open(get_url(), :https) do
-      Kadabra.request(pid, headers, Poison.encode!(body))
+      Kadabra.request(pid, headers: headers, body: Poison.encode!(body))
 
       receive do
         {:end_stream, %Kadabra.Stream{} = stream} ->
@@ -140,14 +140,14 @@ defmodule Notify.APN do
     end
   end
 
-  @spec reply(%Kadabra.Stream{}, String.t()) :: result
-  defp reply(%Kadabra.Stream{:status => 200, :headers => headers}, device_id) do
+  @spec reply(%Kadabra.Stream.Response{}, String.t()) :: result
+  defp reply(%Kadabra.Stream.Response{:status => 200, :headers => headers}, device_id) do
     Logger.info("Notification to #{device_id} succeeded")
     [_, {"apns-id", notification_id}] = headers
     {:ok, notification_id}
   end
 
-  defp reply(%Kadabra.Stream{} = response, device_id) do
+  defp reply(%Kadabra.Stream.Response{} = response, device_id) do
     Logger.warn("Notification to #{device_id} failed: #{inspect response}")
     {:error, response}
   end

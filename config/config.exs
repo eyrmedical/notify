@@ -1,8 +1,5 @@
 import Config
 
-config :logger,
-  compile_time_purge_level: :info
-
 config :notify,
   production: Mix.env() == :prod || :false
 
