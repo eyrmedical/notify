@@ -75,7 +75,7 @@ defmodule Notify.APN do
 
   @spec dispatch(List.t(), Map.t(), String.t()) :: result
   defp dispatch(headers, body, device) do
-    with {:ok, pid} = Kadabra.open(get_url(), :https) do
+    with {:ok, pid} = Kadabra.open("https://#{get_url()}") do
       Kadabra.request(pid, headers: headers, body: Poison.encode!(body))
 
       receive do
