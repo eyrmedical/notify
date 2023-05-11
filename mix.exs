@@ -33,7 +33,7 @@ defmodule Notify.Mixfile do
     [
       {:joken, "~> 2.4"},
       {:poison, "~> 2.2"},
-      {:kadabra, "~> 0.2.0"}
+      {:kadabra, "~> 0.6.0"}
     ]
   end
 end
